@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
+	"reflect"
 	_ "reflect"
 	"runtime"
 	"strings"
@@ -30,4 +31,12 @@ func sum(arr ...float64) float64 {
 	}
 
 	return res
+}
+
+func getFuncName(f interface{}) string {
+	return runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
+}
+
+func getVauleType(value interface{}) string {
+	return fmt.Sprintf("%T", v)
 }
