@@ -27,3 +27,8 @@ func TestDefvjp(t *testing.T) {
 	gradAdd := primitiveVjps[getFuncName(num.Add)]
 	logInfo("res: %v", gradAdd([]int{}, 1.0, 0.7, 1.8)(1.0))
 }
+
+func TestGetValueType(t *testing.T) {
+	v := 1.0
+	logInfo("type: %s", getValueType(v))
+}

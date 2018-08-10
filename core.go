@@ -44,15 +44,16 @@ func nodeConstructor(name string, value float64, f FuncNumber, args []float64, p
 	return node
 }
 
-func makeVjp(f FuncNumber, x float64) {
+func makeVjp(f FuncNumber, x float64) (func(float64) float64, float64) {
 	startNode := NewVJPNode()
 	endValue, endNode := trace(startNode, f, x)
+	var vjp func(float64) float64
 	if endNode == nil {
-		vjp := func(g float64) float64 {
+		vjp = func(g float64) float64 {
 			return 0.0
 		}
 	} else {
-		vjp := func(g float64) float64 {
+		vjp = func(g float64) float64 {
 			backwardPass(g, endNode)
 		}
 	}
@@ -76,6 +77,8 @@ func backwardPass(g float64, endNode *VJPNode) float64 {
 			stack = append(stack, node.parents...)
 		}
 	}
+
+	return 1.0
 }
 
 var primitiveVjps = make(map[string]VJPArgnums)

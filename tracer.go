@@ -1,5 +1,9 @@
 package autograd
 
+import (
+	"reflect"
+)
+
 type Box struct {
 	value interface{}
 	node  VJPNode
@@ -7,12 +11,14 @@ type Box struct {
 }
 
 var boxTypes = make(map[string]bool)
-var boxTypeMappings = make(map[string]interface{})
+var boxTypeMappings = make(map[string]reflect.Type)
 
-func registerBox(boxClass interface{}, boxClassName string, valueType string) {
+var typeRegistry = make(map[string]reflect.Type)
+
+func registerBox(boxClass interface{}, valueType string) {
 	boxTypes[boxClassName] = true
-	boxTypeMappings[valuetype] = boxClass
-	boxTypeMappings[boxClassName] = boxClass
+	boxTypeMappings[valueType] = reflect.TypeOf(boxClass)
+	boxTypeMappings[getValueType(boxClass)] = reflect.TypeOf(boxClass)
 }
 
 func NewBox(value interface{}, trace int, node VJPNode) *Box {

@@ -37,6 +37,6 @@ func getFuncName(f interface{}) string {
 	return runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
 }
 
-func getVauleType(value interface{}) string {
+func getValueType(value interface{}) string {
 	return fmt.Sprintf("%T", v)
 }
