@@ -14,31 +14,34 @@ type VJPArgnums func([]int, float64, ...float64) VJPMaker
 type VJPNode struct {
 	parents []*VJPNode
 	vjp     VJPMaker
+	value   float64
 }
 
 func NewVJPNode() *VJPNode {
 	root := new(VJPNode)
 	root.parents = make([]*VJPNode, 0)
 	root.vjp = func(g float64) []float64 { return []float64{} }
+	root.value = 0.0
 
 	return root
 }
 
-func (v VJPNode) init(value float64, f FuncNumber, args []float64, parentArgnums []int, parents []*VJPNode) {
+func (v VJPNode) init(value float64, fKey string, args []float64, parentArgnums []int, parents []*VJPNode) {
 	v.parents = parents
-	if vjpmaker, ok := primitiveVjps[getFuncKey(f)]; ok {
+	if vjpmaker, ok := primitiveVjps[fKey]; ok {
 		v.vjp = vjpmaker(parentArgnums, value, args...)
 	} else {
 		log.Fatal("error init node")
 	}
 }
 
-func nodeConstructor(name string, value float64, f FuncAny, args []float64, parentArgnums []int, parents []*VJPNode) *VJPNode {
-	logInfo("name: %s, f: %s", name, getFuncKey(f))
+func nodeConstructor(name string, value float64, fKey string, args []float64, parentArgnums []int, parents []*VJPNode) *VJPNode {
+	logInfo("name: %s, f: %s", name, fKey)
 	node := NewVJPNode()
 
+	node.value = value
 	node.parents = parents
-	if vjpmaker, ok := primitiveVjps[getFuncKey(f)]; ok {
+	if vjpmaker, ok := primitiveVjps[fKey]; ok {
 		logInfo("find vjpmaker, parentArgnums: %v, value: %v, args: %v", parentArgnums, value, args)
 		node.vjp = vjpmaker(parentArgnums, value, args...)
 		logInfo("vjp: %v, %v, %f", node.vjp, reflect.TypeOf(node.vjp), node.vjp(1.0))
@@ -124,7 +127,7 @@ func backwardPass(g float64, endNode *VJPNode) float64 {
 }
 
 func visit(outgrad float64, node *VJPNode, outgrads map[*VJPNode]float64, flags map[*VJPNode]bool) {
-	logInfo("outgrad: %f, node.vjp: %s, node.parents: %v", outgrad, getFuncKey(node.vjp), node.parents)
+	logInfo("node: %v, outgrad: %f, node.vjp: %s, node.parents: %v", node, outgrad, getFuncKey(node.vjp), node.parents)
 	ingrads := node.vjp(outgrad)
 	logInfo("ingrads: %v", ingrads)
 	for i, parent := range node.parents {
@@ -137,25 +140,25 @@ func visit(outgrad float64, node *VJPNode, outgrads map[*VJPNode]float64, flags 
 
 var primitiveVjps = make(map[string]VJPArgnums)
 
-func DefvjpArgnums(f FuncAny, vjpArgnums VJPArgnums) {
-	primitiveVjps[getFuncKey(f)] = vjpArgnums
+func DefvjpArgnums(fKey string, vjpArgnums VJPArgnums) {
+	primitiveVjps[fKey] = vjpArgnums
 }
 
-func Defvjp(f FuncAny, vjpmakers ...FuncGrad) {
+func Defvjp(fKey string, vjpmakers ...FuncGrad) {
 	vjpArgnums := func(argnums []int, ans float64, args ...float64) VJPMaker {
 		return func(g float64) []float64 {
 			arr := make([]float64, 0)
 			newArgs := append([]float64{ans}, args...)
-			for _, vjp := range vjpmakers {
-				arr = append(arr, vjp(newArgs...)(g))
+			for _, argnum := range argnums {
+				arr = append(arr, vjpmakers[argnum](newArgs...)(g))
 			}
 
 			return arr
 		}
 	}
 
-	logInfo("f: %s, %s", getFuncName(f), getFuncKey(f))
-	DefvjpArgnums(f, vjpArgnums)
+	logInfo("fKey: %s", fKey)
+	DefvjpArgnums(fKey, vjpArgnums)
 }
 
 func gradOrigin(f FuncAny, x interface{}) interface{} {

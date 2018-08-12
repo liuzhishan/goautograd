@@ -4,6 +4,7 @@ func unaryToNary(unaryOperator func(FuncAny, interface{}) interface{}) func(Func
 	naryOperator := func(f FuncAny, argnum interface{}) FuncAny {
 		naryF := func(args ...interface{}) interface{} {
 			unaryF := func(x ...interface{}) interface{} {
+				logInfo("args: %v, argnum: %d, x: %v", args, argnum, x)
 				subargs := subvals(args, []int{argnum.(int)}, x)
 				logInfo("unaryF, x: %v, args: %v, subargs: %v", x, args, subargs)
 				return f(subargs...)

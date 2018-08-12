@@ -77,8 +77,10 @@ func primitive(fRaw FuncNumber) FuncAny {
 			}
 
 			ans := fWrapped(argvals...).(float64)
-			node := nodeConstructor(nodeConstructorName, ans, fWrapped, toFloat64(argvals), argnums, parents)
+			node := nodeConstructor(nodeConstructorName, ans, getFuncKey(fRaw), toFloat64(argvals), argnums, parents)
 
+			z := NewBox(ans, trace, node)
+			logInfo("primitive box z: %v, isBox: %v, fRaw: %s", z, isBox(z), getFuncName(fRaw))
 			return NewBox(ans, trace, node)
 		} else {
 			logInfo("args: %v", args)

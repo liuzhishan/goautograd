@@ -38,7 +38,8 @@ func getFuncName(f interface{}) string {
 }
 
 func getFuncKey(f interface{}) string {
-	return fmt.Sprintf("%#v", f)
+	//return fmt.Sprintf("%#v", f)
+	return getFuncName(f)
 }
 
 func getValueType(value interface{}) string {
@@ -55,8 +56,8 @@ func getNodeValue(boxed []Box) []interface{} {
 }
 
 func subvals(args []interface{}, argnum []int, values []interface{}) []interface{} {
-	for _, x := range argnum {
-		args[x] = values[x]
+	for i, x := range values {
+		args[argnum[i]] = x
 	}
 
 	return args
