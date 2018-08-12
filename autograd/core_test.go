@@ -5,14 +5,22 @@ import (
 )
 
 func TestDefvjp(t *testing.T) {
-	logInfo("funcName: %s", getFuncName(Add))
-	gradAdd := primitiveVjps[getFuncName(Add)]
-	logInfo("res: %v", gradAdd([]int{}, 1.0, 0.7, 1.8)(1.0))
+	logInfo("fKey: %s", getFuncKey(AddOrigin))
+	gradAdd := primitiveVjps[getFuncKey(AddOrigin)]
+	res := gradAdd([]int{0}, 1.0, 0.7, 1.8)(1.0)
+	logInfo("res: %v", res)
+
+	if res[0] != 1.0 {
+		t.Errorf("res got: %f, want: %f", res[0], 1.0)
+	}
 }
 
 func TestGetValueType(t *testing.T) {
 	v := 1.0
 	logInfo("type: %s", getValueType(v))
+	if getValueType(v) != "float64" {
+		t.Errorf("res got: %v, want: %v", getValueType(v), "float64")
+	}
 }
 
 func TestGradAdd(t *testing.T) {

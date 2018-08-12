@@ -1,5 +1,7 @@
 package autograd
 
+// Useful function for grad. Returns a function which returns a gradient function maker.
+// Change parameters for grad based on the arguments passed.
 func unaryToNary(unaryOperator func(FuncAny, interface{}) interface{}) func(FuncAny, interface{}) FuncAny {
 	naryOperator := func(f FuncAny, argnum interface{}) FuncAny {
 		naryF := func(args ...interface{}) interface{} {

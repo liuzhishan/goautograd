@@ -5,12 +5,14 @@ import (
 	_ "runtime"
 )
 
+// Box means that we need the compute the gradient when we at the node.
 type Box struct {
 	value interface{}
 	node  *VJPNode
 	trace int
 }
 
+// What node is a Box.
 var boxTypes = make(map[reflect.Type]bool)
 var boxTypeMappings = make(map[string]reflect.Type)
 
@@ -41,6 +43,7 @@ func isBox(x interface{}) bool {
 	}
 }
 
+// Run the forward pass and remember information needed.
 func trace(startNode *VJPNode, f FuncAny, x float64) (float64, *VJPNode) {
 	startBox := NewBox(x, 0, startNode)
 	logInfo("x: %v, startBox: %v", x, startBox)
@@ -59,6 +62,14 @@ func trace(startNode *VJPNode, f FuncAny, x float64) (float64, *VJPNode) {
 	}
 }
 
+// Wrapper function that take a normal computation function, returns a a function that
+// automatically add themselves to a list of operations when called. These operatioins
+// form a computation graph.
+// Note that the wrapped function is recursive.
+// If the parameters has no boxed argument,
+// it just return the normal computation result. If the parameters has boxed argument,
+// it returns a boxed nodd, which contains all information needed for backward pass.
+// So the type of wrapped function parameters must be interface{}. We need check parameters.
 func primitive(fRaw FuncNumber) FuncAny {
 	var fWrapped FuncAny
 	fWrapped = func(args ...interface{}) interface{} {
@@ -91,6 +102,7 @@ func primitive(fRaw FuncNumber) FuncAny {
 	return fWrapped
 }
 
+// no trace functions
 var notracePrimitives = make(map[string]map[string]bool)
 
 func registerNotrace(traceType string, primitiveFun interface{}) {
@@ -117,6 +129,8 @@ func notracePrimitive(fRaw FuncAny) FuncAny {
 	return fWrapped
 }
 
+// Find boxed argument from args. That means has relation with the variable we want
+// to compute gradient to.
 func findTopBoxedArgs(args ...interface{}) ([]int, []Box, int, string) {
 	argnums := make([]int, 0)
 	topBoxes := make([]Box, 0)

@@ -2,6 +2,7 @@ package autograd
 
 import ()
 
+// Some simple numpy function and their gradient functions.
 func AddOrigin(args ...float64) float64 {
 	logInfo("AddOrigin, args: %v", args)
 	a, b := args[0], args[1]
