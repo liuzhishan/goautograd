@@ -37,6 +37,36 @@ func getFuncName(f interface{}) string {
 	return runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
 }
 
+func getFuncKey(f interface{}) string {
+	return fmt.Sprintf("%#v", f)
+}
+
 func getValueType(value interface{}) string {
-	return fmt.Sprintf("%T", v)
+	return fmt.Sprintf("%T", value)
+}
+
+func getNodeValue(boxed []Box) []interface{} {
+	values := make([]interface{}, 0)
+	for _, b := range boxed {
+		values = append(values, b.value)
+	}
+
+	return values
+}
+
+func subvals(args []interface{}, argnum []int, values []interface{}) []interface{} {
+	for _, x := range argnum {
+		args[x] = values[x]
+	}
+
+	return args
+}
+
+func toFloat64(args []interface{}) []float64 {
+	res := make([]float64, 0)
+	for _, x := range args {
+		res = append(res, x.(float64))
+	}
+
+	return res
 }
