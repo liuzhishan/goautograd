@@ -39,7 +39,7 @@ func (v VJPNode) init(value float64, fKey string, args []float64, parentArgnums 
 	}
 }
 
-// nodeConstructor construct a VJPNode during the forward computation. When we encouter
+// nodeConstructor construct a VJPNode during the forward computation. When we encounter
 // a registered function that need gradient, we remember all the information needed, which
 // includes the function (fKey), parameters (args), result (value), parent nodes.
 // The parentArgnums specify which variable we want to get partial gradient to. For example,
@@ -105,7 +105,7 @@ func makeVjp(f FuncAny, x interface{}) (func(float64) float64, float64) {
 func backwardPass(g float64, endNode *VJPNode) float64 {
 	logInfo("start")
 	// A node may have multiple child nodes, which means a node would be used
-	// to compute multiple variables. We need to remember it's child counts,
+	// to compute multiple variables. We need to remember its child counts,
 	// so when we run the backward pass, we compute all child nodes before we move
 	// to the parent nodes.
 	childCounts := make(map[*VJPNode]int)
